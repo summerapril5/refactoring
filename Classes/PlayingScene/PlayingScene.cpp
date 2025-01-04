@@ -58,13 +58,54 @@ pair<int, Hero*> prepare[9] = { {-1, nullptr},{-1, nullptr}, {-1, nullptr}, {-1,
 
 vector<vector<pair<int,Hero*>>> chessboard(numRows, vector<pair<int,Hero*>>(numCols,make_pair(-1, nullptr))); //棋盘数组
 
+// 添加英雄创建工厂
+class HeroCreator {
+public:
+    static Hero* createHero(int heroType, bool isRed = false, int level = 1) {
+        Hero* hero = nullptr;
+        switch (heroType) {
+            case 0:
+                hero = new HeroPhysicalTank(isRed, level);
+                hero->setTexture("Hero/hero01.png");
+                break;
+            case 1:
+                hero = new HeroMagicTank(isRed, level);
+                hero->setTexture("Hero/hero11.png");
+                break;
+            case 2:
+                hero = new HeroPhysicalWarrior(isRed, level);
+                hero->setTexture("Hero/hero21.png");
+                break;
+            case 3:
+                hero = new HeroMagicalWarrior(isRed, level);
+                hero->setTexture("Hero/hero31.png");
+                break;
+            case 4:
+                hero = new HeroMarksman(isRed, level);
+                hero->setTexture("Hero/hero41.png");
+                break;
+            case 5:
+                hero = new HeroMage(isRed, level);
+                hero->setTexture("Hero/hero51.png");
+                break;
+        }
+        if (hero) {
+            hero->setScale(0.9F + 0.3F * level);
+            hero->setOpacity(255);
+        }
+        return hero;
+    }
+};
+
 void puthero(Hero* h, int col, int row) {
-    chessboard[col][row].first = 1;
+    if (!h) return;
+    
+    chessboard[col][row].first = h->getHeroType();
     chessboard[col][row].second = h;
 
     float cardX = boardX_min + (col + 0.75) * sizeX;
     float cardY = boardY_min + (row + 1) * sizeY;
-    chessboard[col][row].second->setPosition(cardX, cardY);
+    h->setPosition(cardX, cardY);
 }
 
 //更新升级按钮状态
@@ -95,9 +136,18 @@ void PoState() {
 /* 随机生成牌库 初始化卡牌 */
 void PlayingScene::randCard() {
     srand(time(0));
-
-    for (int i = 0; i < 5; i++) 
-        heroCard[i].first = rand() % 6; 
+    for (int i = 0; i < 5; i++) {
+        // 释放旧的英雄对象
+        if (heroCard[i].second != nullptr) {
+            heroCard[i].second->release();
+            heroCard[i].second = nullptr;
+        }
+        // 随机生成新的英雄类型
+        int heroType = rand() % 6;
+        heroCard[i].first = heroType;
+        // 使用工厂创建新的英雄
+        heroCard[i].second = HeroCreator::createHero(heroType);
+    }
 }
 
 /* 创建一个Scene对象 */
@@ -133,13 +183,15 @@ void PlayingScene::menuCloseCallback(Ref* pSender) {
 }
 
 void PlayingScene::shoponButtonClicked(Ref* sender) {
-
     CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/click.wav");
     shopbutton->setEnabled(false);
     shopbutton->loadTextures("buttons/ShopSelected.png", "buttons/ShopSelected.png", "buttons/ShopSelected.png");
     pop_open = true;
     popupLayer = PopupLayer::create();
     this->addChild(popupLayer);
+    
+    // 使用工厂模式刷新商店卡牌
+    randCard();
 }
 void PlayingScene::uponButtonClicked(Ref* sender) {
 

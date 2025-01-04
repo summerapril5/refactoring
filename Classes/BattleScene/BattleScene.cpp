@@ -40,6 +40,65 @@ extern Button* upbutton;
 void findNearestHero(int i, int j, bool opponent, int& x, int& y);
 pair<int, int> isWithinAttackRange(int x, int y, bool opponent);
 
+// 实现BattleUIObserver
+BattleUIObserver::BattleUIObserver(Node* scene) : scene(scene) {}
+
+void BattleUIObserver::onHeroHealthChanged(int heroId, int oldHealth, int newHealth, bool isEnemy) {
+    // 更新血条显示
+    auto hero = dynamic_cast<Hero*>(scene->getChildByTag(heroId));
+    if (hero) {
+        // 更新血条
+        float percentage = (float)newHealth / (isEnemy ? 100 : 100); // 根据实际最大血量调整
+        if (hero->bloodbar) {
+            float scaleX = percentage;
+            hero->bloodbar->setScaleX(scaleX);
+        }
+
+        // 如果血量变化显著，添加闪烁效果
+        if (std::abs(newHealth - oldHealth) > 10) {
+            auto blink = Blink::create(0.5f, 3);
+            hero->bloodbar->runAction(blink);
+        }
+    }
+}
+
+void BattleUIObserver::onBattleStateChanged(const std::string& state) {
+    // 显示战斗状态提示
+    auto label = Label::createWithTTF(state, "fonts/arial.ttf", 24);
+    label->setPosition(Vec2(scene->getContentSize().width/2, scene->getContentSize().height * 0.7));
+    scene->addChild(label);
+    
+    // 添加动画效果
+    auto scale = ScaleTo::create(0.5f, 1.5f);
+    auto fadeOut = FadeOut::create(1.0f);
+    auto seq = Sequence::create(scale, fadeOut, RemoveSelf::create(), nullptr);
+    label->runAction(seq);
+}
+
+// 实现BattleScene的观察者相关方法
+void BattleScene::addObserver(IBattleObserver* observer) {
+    observers.push_back(observer);
+}
+
+void BattleScene::removeObserver(IBattleObserver* observer) {
+    auto it = std::find(observers.begin(), observers.end(), observer);
+    if (it != observers.end()) {
+        observers.erase(it);
+    }
+}
+
+void BattleScene::notifyHealthChanged(int heroId, int oldHealth, int newHealth, bool isEnemy) {
+    for (auto observer : observers) {
+        observer->onHeroHealthChanged(heroId, oldHealth, newHealth, isEnemy);
+    }
+}
+
+void BattleScene::notifyBattleStateChanged(const std::string& state) {
+    for (auto observer : observers) {
+        observer->onBattleStateChanged(state);
+    }
+}
+
 /* 创建一个Scene对象 */
 Scene* BattleScene::createScene() {
     return BattleScene::create();
@@ -47,14 +106,23 @@ Scene* BattleScene::createScene() {
 
 /* 点击后调节音效 */
 void BattleScene::menuSetMusicCallback(Ref* pSender) {
-
-    CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/click.wav");
+    audioManager->playEffect("Music/click.wav");
     auto newScene = SetMusicScene::create();
-    Director::getInstance()->pushScene(newScene); //切换到调节音效场景 当前场景放入场景栈中
+    Director::getInstance()->pushScene(newScene);
 }
 
 void BattleScene::releaseScene() {
-    //释放棋盘数组中的英雄对象
+    // 释放管理器
+    if (audioManager) {
+        delete audioManager;
+        audioManager = nullptr;
+    }
+    if (uiManager) {
+        delete uiManager;
+        uiManager = nullptr;
+    }
+    
+    // 释放其他资源
     for (int i = 0; i < numRows; i++) {
         for (int j = 0; j < numCols; j++) {
             if (chessboardBattle[i][j].second != nullptr) {
@@ -67,14 +135,22 @@ void BattleScene::releaseScene() {
 
 /* 初始化BattleScene场景内容 */
 bool BattleScene::init() {
-    if (!Scene::init()) //初始化
-        return false; //初始化失败
-    auto visibleSize = Director::getInstance()->getVisibleSize(); //屏幕可见区域的大小
-    Vec2 origin = Director::getInstance()->getVisibleOrigin(); //原点坐标   
+    if (!Scene::init())
+        return false;
+        
+    auto visibleSize = Director::getInstance()->getVisibleSize();
+    Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
-    SimpleAudioEngine::getInstance()->stopBackgroundMusic();
-    SimpleAudioEngine::getInstance()->playBackgroundMusic("Music/playingBGM.mp3", true); //播放背景音乐
-    SimpleAudioEngine::getInstance()->setBackgroundMusicVolume(0.6F); //设置背景音乐的音量
+    // 创建并注入音效管理器
+    audioManager = new BattleAudioManager();
+    audioManager->stopBackgroundMusic();
+    audioManager->playBackgroundMusic("Music/playingBGM.mp3", true);
+    audioManager->setBackgroundMusicVolume(0.6F);
+
+    // 创建并注入UI管理器
+    uiManager = new BattleUIManager();
+    uiManager->createBackground(this, visibleSize, origin);
+    uiManager->createMenuItems(this, visibleSize, origin);
 
     /* 背景精灵 */
     auto background = Sprite::create("ChessBoard/playing.png");
@@ -239,6 +315,21 @@ bool BattleScene::init() {
         }
     Battle(); //对战
 
+    // 添加UI观察者
+    auto uiObserver = new BattleUIObserver(this);
+    addObserver(uiObserver);
+
+    // 在创建英雄时设置tag
+    for (int i = 0; i < 6; i++) {
+        for (int j = 0; j < 6; j++) {
+            if (chessboardBattle[i][j].second != nullptr) {
+                chessboardBattle[i][j].second->setTag(i * 6 + j);  // 使用唯一的tag标识每个英雄
+            }
+        }
+    }
+
+    notifyBattleStateChanged("战斗开始！");
+    
     return true;
 }
 
@@ -505,4 +596,32 @@ bool BattleScene::onTouchBeganLITTLE(Touch* touch, Event* event)
     // 调用移动函数，将精灵移动到鼠标点击的位置
     moveSpriteTo(touchLocation);
     return true;  // 返回true表示消耗了该事件
+}
+
+// 修改英雄受伤的相关方法
+void updateHeroHealth(Hero* hero, int damage, BattleScene* scene) {
+    if (hero) {
+        int oldHealth = hero->getCurrentHealth();
+        int newHealth = oldHealth - damage;
+        hero->setCurrentHealth(newHealth);
+        
+        // 通知观察者血量变化
+        scene->notifyHealthChanged(hero->getTag(), oldHealth, newHealth, !hero->isRed());
+    }
+}
+
+// 修改血条更新的方法
+void BattleScene::updateHeroHealth(Hero* hero, int damage) {
+    if (hero) {
+        int oldHealth = hero->getCurrentHealth();
+        int newHealth = oldHealth - damage;
+        hero->setCurrentHealth(newHealth);
+        
+        // 使用UI管理器更新血条
+        float percentage = (float)newHealth / hero->getMaxHealth();
+        uiManager->updateHealthBar(percentage, !hero->isRed());
+        
+        // 通知观察者
+        notifyHealthChanged(hero->getTag(), oldHealth, newHealth, !hero->isRed());
+    }
 }
