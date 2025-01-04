@@ -1,7 +1,8 @@
-#include"AttackFunc.h"
-#include<string>
-#include<vector>
+#include "AttackFunc.h"
+#include <string>
+#include <vector>
 #define ATTACK 6//第六张图片为攻击时的光点 使用define定义 可修改!!!!!!
+
 AttackFunc* AttackFunc::create(int id,bool is_far, const Vec2& attackerPosition, const Vec2& targetPosition)//创建攻击特效
 {
 	if (is_far == 1)//移动光点特效
@@ -16,6 +17,7 @@ AttackFunc* AttackFunc::create(int id,bool is_far, const Vec2& attackerPosition,
 	effect->autorelease();//将对象加入到自动释放池中，避免手动管理内存
 	return effect;
 }
+
 //后面两个变量为攻击者和被攻击者的位置
 void AttackFunc::init(int id,bool is_far, const Vec2& attackerPosition, const Vec2& targetPosition)//攻击特效图片的初始化 is_far==1代表是远程 需要加入动态攻击特效
 {
@@ -38,8 +40,6 @@ void AttackFunc::init(int id,bool is_far, const Vec2& attackerPosition, const Ve
 	}
 	else
 		Sprite::initWithFile(effects[id]);
-
-	
 }
 
 void AttackFunc::playAttackAnimation(const Vec2& attackerPosition, const Vec2& targetPosition)
