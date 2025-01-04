@@ -6,61 +6,61 @@ using namespace ui;
 using namespace CocosDenshion;
 USING_NS_CC;
 
-/* ´´½¨Ò»¸öScene¶ÔÏó */
+/* ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½Sceneï¿½ï¿½ï¿½ï¿½ */
 Scene* StartGameScene::createScene() {
     return StartGameScene::create();
 }
 
-/* µã»÷ºóÍË³öÓÎÏ· */
+/* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë³ï¿½ï¿½ï¿½Ï· */
 void StartGameScene::menuCloseCallback(Ref* pSender) {
-    //SimpleAudioEngine::sharedEngine()->end(); //ÊÍ·ÅËùÓĞÉùÒô×ÊÔ´
-    Director::getInstance()->end(); //½áÊøÓÎÏ·Ñ­»·
+    //SimpleAudioEngine::sharedEngine()->end(); //ï¿½Í·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô´
+    Director::getInstance()->end(); //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï·Ñ­ï¿½ï¿½
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
-    exit(0); //iOSÍË³ö
+    exit(0); //iOSï¿½Ë³ï¿½
 #endif
 }
 
-/* µã»÷ºó´´½¨·¿¼ä */
+/* ï¿½ï¿½ï¿½ï¿½ó´´½ï¿½ï¿½ï¿½ï¿½ï¿½ */
 void StartGameScene::menuCreateRoomCallback(Ref* pSender) {
 
     CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/click.wav");
-    auto newScene = CreateRoomScene::create(); //´´½¨ÓÎÏ·³¡¾°
-    Director::getInstance()->replaceScene(newScene); //ÇĞ»»µ½´´½¨·¿¼ä³¡¾°
+    auto newScene = CreateRoomScene::create(); //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï·ï¿½ï¿½ï¿½ï¿½
+    Director::getInstance()->replaceScene(newScene); //ï¿½Ğ»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ä³¡ï¿½ï¿½
 }
 
-/* µã»÷ºóµ÷½ÚÒôĞ§ */
+/* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ§ */
 void StartGameScene::menuSetMusicCallback(Ref* pSender) {
 
     CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("Music/click.wav");
     auto newScene = SetMusicScene::create();
-    Director::getInstance()->pushScene(newScene); //ÇĞ»»µ½µ÷½ÚÒôĞ§³¡¾° µ±Ç°³¡¾°·ÅÈë³¡¾°Õ»ÖĞ
+    Director::getInstance()->pushScene(newScene); //ï¿½Ğ»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ§ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ë³¡ï¿½ï¿½Õ»ï¿½ï¿½
 }
 
-/* ³õÊ¼»¯StartGameScene³¡¾°ÄÚÈİ */
+/* ï¿½ï¿½Ê¼ï¿½ï¿½StartGameSceneï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
 bool StartGameScene::init() {
-    if (!Scene::init()) //³õÊ¼»¯
-        return false; //³õÊ¼»¯Ê§°Ü
+    if (!Scene::init()) //ï¿½ï¿½Ê¼ï¿½ï¿½
+        return false; //ï¿½ï¿½Ê¼ï¿½ï¿½Ê§ï¿½ï¿½
 
-    auto visibleSize = Director::getInstance()->getVisibleSize(); //ÆÁÄ»¿É¼ûÇøÓòµÄ´óĞ¡
-    Vec2 origin = Director::getInstance()->getVisibleOrigin(); //Ô­µã×ø±ê    
+    auto visibleSize = Director::getInstance()->getVisibleSize(); //ï¿½ï¿½Ä»ï¿½É¼ï¿½ï¿½ï¿½ï¿½ï¿½Ä´ï¿½Ğ¡
+    Vec2 origin = Director::getInstance()->getVisibleOrigin(); //Ô­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½    
 
-    /* ±³¾°¾«Áé */
+    /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
     auto background = Sprite::create("Background/startgame.png");
     background->setContentSize(Size(visibleSize.width, visibleSize.height));
     background->setPosition(Vec2(visibleSize.width / 2 + origin.x, visibleSize.height / 2 + origin.y));
     this->addChild(background, 0);
 
-    /* ÍË³ö³ÌĞò²Ëµ¥Ïî */
+    /* ï¿½Ë³ï¿½ï¿½ï¿½ï¿½ï¿½Ëµï¿½ï¿½ï¿½ */
     auto closeItem = MenuItemImage::create("CloseNormal.png", "CloseSelected.png",
         CC_CALLBACK_1(StartGameScene::menuCloseCallback, this));
     float scale = 5.0;
-    closeItem->setScale(4); //·Å´ó4±¶
+    closeItem->setScale(4); //ï¿½Å´ï¿½4ï¿½ï¿½
     float x = origin.x + visibleSize.width - closeItem->getContentSize().width * scale / 2;
     float y = origin.y + closeItem->getContentSize().height * scale / 2;
-    closeItem->setPosition(Vec2(x, y)); //ÉèÖÃÏÔÊ¾Î»ÖÃ
+    closeItem->setPosition(Vec2(x, y)); //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾Î»ï¿½ï¿½
 
-    /* ¿ªÊ¼ÓÎÏ·²Ëµ¥Ïî */
+    /* ï¿½ï¿½Ê¼ï¿½ï¿½Ï·ï¿½Ëµï¿½ï¿½ï¿½ */
     auto startItem = MenuItemImage::create("Buttons/Start.png", "Buttons/Start.png",
         CC_CALLBACK_1(StartGameScene::menuCreateRoomCallback, this));
     startItem->setScale(1.3F);
@@ -68,7 +68,7 @@ bool StartGameScene::init() {
     y = origin.y + visibleSize.height / 5;
     startItem->setPosition(Vec2(x, y));
 
-    /* ÉèÖÃÒôĞ§²Ëµ¥Ïî */
+    /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ§ï¿½Ëµï¿½ï¿½ï¿½ */
     auto setMusic = MenuItemImage::create("Music/setting.png", "Music/setting.png",
         CC_CALLBACK_1(StartGameScene::menuSetMusicCallback, this));
     setMusic->setScale(0.5);
@@ -76,12 +76,45 @@ bool StartGameScene::init() {
     y = origin.y + 8 * visibleSize.height / 9;
     setMusic->setPosition(Vec2(x, y));
 
-    /* ´´½¨²Ëµ¥ */
-    auto menu = Menu::create(closeItem, startItem, setMusic, nullptr); //Ìí¼Ó²Ëµ¥Ïî
+    /* ï¿½ï¿½ï¿½ï¿½ï¿½Ëµï¿½ */
+    auto menu = Menu::create(closeItem, startItem, setMusic, nullptr); //ï¿½ï¿½ï¿½Ó²Ëµï¿½ï¿½ï¿½
     menu->setPosition(Vec2::ZERO);
     this->addChild(menu, 1);
     return true;
 }
+
+class Command {
+public:
+    virtual void execute() = 0; // æ‰§è¡Œå‘½ä»¤
+};
+
+class CloseCommand : public Command {
+public:
+    CloseCommand() {}
+    void execute() override {
+        Director::getInstance()->end();
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_IOS)
+        exit(0); // iOS é€€å‡º
+#endif
+    }
+};
+
+class CreateRoomCommand : public Command {
+public:
+    void execute() override {
+        auto newScene = CreateRoomScene::create(); // åˆ›å»ºæˆ¿é—´åœºæ™¯
+        Director::getInstance()->replaceScene(newScene); // æ›¿æ¢åœºæ™¯
+    }
+};
+
+class SetMusicCommand : public Command {
+public:
+    void execute() override {
+        auto newScene = SetMusicScene::create(); // åˆ›å»ºéŸ³ä¹è®¾ç½®åœºæ™¯
+        Director::getInstance()->pushScene(newScene); // æ¨å…¥åœºæ™¯
+    }
+};
+
 class PopupLayer : public cocos2d::Layer {
 public:
     virtual bool init() override;
@@ -95,4 +128,27 @@ private:
     void onButtonClicked(cocos2d::Ref* sender);
 
     cocos2d::Menu* buttonMenu;
+};
+
+class StartGameScene : public cocos2d::Scene {
+public:
+    static Scene* createScene();
+    virtual bool init() override;
+
+    void menuCloseCallback(Ref* pSender) {
+        closeCommand.execute(); // æ‰§è¡Œå…³é—­å‘½ä»¤
+    }
+
+    void menuCreateRoomCallback(Ref* pSender) {
+        createRoomCommand.execute(); // æ‰§è¡Œåˆ›å»ºæˆ¿é—´å‘½ä»¤
+    }
+
+    void menuSetMusicCallback(Ref* pSender) {
+        setMusicCommand.execute(); // æ‰§è¡Œè®¾ç½®éŸ³ä¹å‘½ä»¤
+    }
+
+private:
+    CloseCommand closeCommand; // å…³é—­å‘½ä»¤
+    CreateRoomCommand createRoomCommand; // åˆ›å»ºæˆ¿é—´å‘½ä»¤
+    SetMusicCommand setMusicCommand; // è®¾ç½®éŸ³ä¹å‘½ä»¤
 };

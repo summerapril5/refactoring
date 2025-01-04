@@ -1,27 +1,18 @@
-#pragma once
-/*
-*攻击特效类
-*根据不同的英雄id绑定不同的攻击特效
-*/
-#ifndef  _ATTACK_EFFECT_H_
-#define  _ATTACK_EFFECT_H_
+#ifndef ATTACKFUNC_H
+#define ATTACKFUNC_H
 
 #include "cocos2d.h"
-USING_NS_CC;
+#include <string>
+#include <vector>
 
-//攻击特效类
-class AttackFunc :public Sprite
-{
+class AttackFunc : public cocos2d::Sprite {
 public:
-	static AttackFunc* create(int id,bool is_far, const Vec2& attackerPosition, const Vec2& targetPosition);//根据id创建攻击特效 后面两个变量为攻击者和被攻击者的位置
-	void init(int id, bool is_far, const Vec2& attackerPosition, const Vec2& targetPosition);//攻击特效图片的初始化
-
-    // 添加一个方法，用于启动攻击特效的移动动作
-    void playAttackAnimation(const Vec2& attackerPosition, const Vec2& targetPosition);
+    static AttackFunc* create(int id, bool is_far, const cocos2d::Vec2& attackerPosition, const cocos2d::Vec2& targetPosition);
+    void init(int id, bool is_far, const cocos2d::Vec2& attackerPosition, const cocos2d::Vec2& targetPosition);
+    void playAttackAnimation(const cocos2d::Vec2& attackerPosition, const cocos2d::Vec2& targetPosition);
 
 private:
-    // 存储攻击特效的目标位置
-    Vec2 targetPosition;
+    std::string attackEffect; // 瀛樺偍褰撳墠鏀诲嚮鐗规晥
 };
 
-#endif
+#endif // ATTACKFUNC_H
